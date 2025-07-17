@@ -1,18 +1,17 @@
 # Bash Toolkit
 
-A collection of utility scripts for system administration and media processing.
+A collection of utility scripts for Ubuntu system administration and media processing.
 
 ## Scripts Overview
 
 | Command       | Description |
 |--------------|-------------|
 | **belfly** | Vocal time notifications at custom intervals (uses `espeak`) |
-| **cat** | _(Note: Not included - this is a core Linux command)_ |
 | **collect** | Flattens directory structure by moving files to root |
 | **cutMedia** | Cuts audio/video files between timestamps (uses `ffmpeg`) |
 | **delEXIF** | Strips EXIF metadata from image files |
 | **fixBright** | Batch adjusts brightness/contrast of JPG images |
-| **fixCamera** | _(Note: Script content not provided)_ |
+| **fixCamera** | A symlink to restartPipeWire script |
 | **m** | SSHFS mount utility for remote directories |
 | **renDirMtime** | Renames directories with their modification date |
 | **restartPipeWire** | Restarts PipeWire audio service |
