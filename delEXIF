@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# This script removes all EXIF metadata from an image file.
+# Usage: ./delEXIF <image_file>
+#
+# Arguments:
+#   <image_file> - The path to the image file from which EXIF metadata will be removed.
+#
+# The script performs the following steps:
+# 1. Displays the current EXIF metadata of the image file.
+# 2. Removes all EXIF metadata from the image file using the 'mogrify' command with the '-strip' option.
+# 3. Confirms the removal by displaying the EXIF metadata of the image file again.
+#
+# Dependencies:
+# - ImageMagick (for 'identify' and 'mogrify' commands)
+
+echo Current Info
+identify -verbose $1
+echo 
+mogrify -strip $1
+echo Info deleted.
+echo
+echo Current Info
+identify -verbose $1
+

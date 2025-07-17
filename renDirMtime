@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Description: Renames immediate subdirectories (non-recursive) by prepending
+#              their last modification date in "YYYY-MM-DD" format, followed by a space.
+#              Example: "proyectos" → "2024-07-18 proyectos".
+# Usage: Run in the parent directory. No arguments needed.
+
+# Loop through each immediate subdirectory
+for dir in */; do
+  # Remove trailing slash
+  dir_name="${dir%/}"
+  
+  # Get last modification date (YYYY-MM-DD) of the directory
+  mod_date=$(date -r "$dir_name" +"%Y-%m-%d")
+  
+  # Rename: prepend modification date + space
+  #mv -- "$dir_name" "${mod_date} ${dir_name}"
+  echo "Renamed: '$dir_name' → '${mod_date} ${dir_name}'"
+done
+
+echo "Done! All subdirectories renamed with their modification date."

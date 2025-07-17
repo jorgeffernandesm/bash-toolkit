@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# This script provides time notifications at specified intervals.
+# 
+# Usage: ./belfly <option> <interval>
+#
+# Arguments:
+#   <interval>:
+#     Interval in minutes for the notifications.
+#
+# Options:
+#   -i, --interval:
+#     Specify the interval in minutes starting from now.
+#
+#   -c, --clocksync:
+#     Synchronize the interval with clock time (e.g., 00, 15, 30, 45 minutes).
+#
+#   -h, --help:
+#     Display this help message.
+#
+# Examples:
+#   Speak every 10 minutes:
+#     ./belfly 10
+#     ./belfly -i 10
+#
+#   Speak at 00, 15, 30, and 45 minutes of each hour:
+#     ./belfly -c 00 15 30 45
+#
+# The script uses the `espeak` command to vocalize the current time.
+# If the `--clocksync` option is used, the script will synchronize the notifications with the specified clock times.
+
+INTERVAL=$1
+CLOCK_SYNC=FALSE
+COMMAND=$(basename $0)
+
+usage() {
+  cat <<EOF
+$COMMAND
+===============================================================================
+Speak time notifications every X minutes 
+Usage: $COMMAND <option> <interval>
+
+Arguments:
+  <interval>
+    interval in minutes
+
+  -i, --interval
+    <interval> starting from now
+
+  -c, --clocksync
+    sync <interval> with clock time -> 00-59 minutes
+
+  -h, --help
+    This help.
+
+E.g.: Speak hourly
+  $COMMAND 10
+  $COMMAND -i 10
+  $COMMAND -c 00 15 30 45
+EOF
+}
+
+# parse options
+INTERVALS=()
+
+if [ "$#" -lt 1 ]; then
+  usage
+  exit
+fi
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+  -i | --interval)
+    # Default
+    shift
+    ;;
+  -c | --clocksync)
+    CLOCK_SYNC=TRUE
+    shift
+    ;;
+  -* | --*)
+    echo "Unknown option $1\n"
+    usage
+    exit 1
+    ;;
+  *)
+    INTERVALS+=("$1")
+    shift
+    ;;
+  esac
+done
+
+if [ ! $INTERVALS ]; then
+  usage
+  exit
+fi
+
+DATE=$(date +%I:%M)
+espeak -ves $DATE
+while :; do
+  DATE=$(date +%I:%M)
+  MINUTE=$(date +%M)
+  SECOND=$(date +%S)
+
+  if [ $CLOCK_SYNC = "TRUE" ]; then
+
+    for INTERVAL in "${INTERVALS[@]}"; do
+      if [ "$MINUTE" = "$INTERVAL" ] && [ "$SECOND" = "00" ]; then
+        espeak -ves $DATE
+      fi
+    done
+
+  else
+    sleep $(($INTERVAL * 60))
+    espeak -ves $DATE
+    sleep 58
+  fi
+  sleep 1
+  #echo $DATE:$SECOND
+done

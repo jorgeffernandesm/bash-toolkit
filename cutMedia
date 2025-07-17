@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Description:
+#   Cuts a media file (audio/video) between start and end time using ffmpeg.
+# Usage:
+#   ./cut-media.sh <input_file> <start_time> <end_time> [output_file]
+# Example:
+#   ./cut-media.sh song.mp3 00:01:30 00:02:45
+#   ./cut-media.sh video.mp4 10 60 output.mp4
+
+set -e
+
+# Check dependencies
+if ! command -v ffmpeg &> /dev/null; then
+  echo "❌ Error: ffmpeg is not installed. Install it with: sudo apt install ffmpeg"
+  exit 1
+fi
+
+# Validate arguments
+if [[ $# -lt 3 ]]; then
+  echo "❌ Usage: $0 <input_file> <start_time> <end_time> [output_file]"
+  exit 1
+fi
+
+INPUT="$1"
+START="$2"
+END="$3"
+OUTPUT="${4:-"${INPUT%.*}_cut.${INPUT##*.}"}"
+
+# Validate input file
+if [[ ! -f "$INPUT" ]]; then
+  echo "❌ Error: Input file '$INPUT' does not exist."
+  exit 1
+fi
+
+# Inform user
+echo "📤 Cutting '$INPUT' from $START to $END..."
+echo "📥 Output will be saved as '$OUTPUT'"
+
+# Perform cut using ffmpeg
+ffmpeg -hide_banner -loglevel error -ss "$START" -to "$END" -i "$INPUT" -c copy "$OUTPUT"
+
+# Confirm completion
+echo "✅ Done: '$OUTPUT' created successfully."

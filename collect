@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# This script moves all files from subdirectories of the specified root directory to the root directory itself.
+# It then removes the original subdirectories if they are empty.
+# 
+# Variables:
+# - root: The root directory where files will be moved to. Default is the current directory (./).
+#
+# Loop through all files in subdirectories of the root directory:
+# - If the item is a file:
+#   - Remove any existing file in the root directory with the same name.
+#   - Move the file to the root directory.
+#   - Remove the subdirectory if it is empty.
+
+root=./
+
+for f in "${root}"/*/*; do
+  if [ -f "${f}" ]; then
+    rm -f "${root}/${f##*/}"
+    mv "${f}" "${root}"
+    rmdir --ignore-fail-on-non-empty "${f%/*}"
+  fi
+done

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# This script adjusts the brightness and contrast of all .jpg files in the current directory.
+# It uses the `convert` command from ImageMagick to apply a brightness increase of 10 and a contrast increase of 5.
+# The modified images are saved with the prefix "altered_" added to the original filenames.
+
+for j in *.jpg
+do 
+  convert -brightness-contrast 10x5 "$j" altered_"$j"
+done

@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# This script provides system information including:
+# - Operating system version
+# - GNOME version
+# - Memory usage
+# - Storage size
+# - Available devices
+# - Detailed list of block devices with their names, models, sizes, and mount points
+# - List of connected USB devices
+
+# Function to check if a command exists
+command_exists() {
+	command -v "$1" >/dev/null 2>&1
+}
+
+# Show operating system version
+echo -e "\nOperating system version:"
+if command_exists lsb_release; then
+	lsb_release -a
+else
+	echo "lsb_release command not found"
+fi
+
+# Show GNOME version
+echo
+if command_exists gnome-shell; then
+	gnome-shell --version
+else
+	echo "gnome-shell command not found"
+fi
+
+# Show memory
+echo -e "\nMemory:"
+if command_exists free; then
+	free -h
+else
+	echo "free command not found"
+fi
+
+# Show storage size
+echo -e "\nStorage size:"
+if command_exists df; then
+	df -h
+else
+	echo "df command not found"
+fi
+
+# Show all available devices
+echo -e "\nAvailable devices:"
+if command_exists lsblk; then
+	lsblk
+else
+	echo "lsblk command not found"
+fi
+
+# List all block devices
+echo -e "\nListing all devices with their names, versions and sizes..."
+if command_exists lsblk; then
+	lsblk -o NAME,SIZE,MODEL,MOUNTPOINT
+else
+	echo "lsblk command not found"
+fi
+
+# For USB drives (e.g., memory stick), you can also use:
+echo -e "\nListing USB devices (memory sticks)..."
+if command_exists lsusb; then
+	lsusb
+else
+	echo "lsusb command not found"
+fi
+
+
+# Show detailed information about disks
+echo -e "\nDetailed information about disks:"
+if command_exists lshw; then
+  sudo lshw -class disk
+else
+  echo "lshw command not found"
+fi
