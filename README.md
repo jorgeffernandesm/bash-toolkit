@@ -5,27 +5,42 @@
 
 # Bash Toolkit
 
-
 A collection of utility scripts for Ubuntu system administration and media processing.
 
 ## Scripts Overview
 
+### System Utilities
 | Command       | Description |
 |--------------|-------------|
 | **belfly** | Vocal time notifications at custom intervals (uses `espeak`) |
 | **collect** | Flattens directory structure by moving files to root |
-| **cutMedia** | Cuts audio/video files between timestamps (uses `ffmpeg`) |
-| **delEXIF** | Strips EXIF metadata from image files |
-| **fixBright** | Batch adjusts brightness/contrast of JPG images |
-| **fixCamera** | A symlink to restartPipeWire script |
 | **m** | SSHFS mount utility for remote directories |
 | **renDirMtime** | Renames directories with their modification date |
 | **restartPipeWire** | Restarts PipeWire audio service |
 | **sysInfo** | Displays comprehensive system hardware/OS information |
+| **radar** | Creates desktop symlinks to frequently accessed files |
+
+### Media Processing
+| Command       | Description |
+|--------------|-------------|
+| **bw** | Converts images to black-and-white |
+| **cutMedia** | Cuts audio/video files between timestamps (uses `ffmpeg`) |
+| **delEXIF** | Strips EXIF metadata from image files |
+| **fixBright** | Batch adjusts brightness/contrast of JPG images |
+| **greyscale** | Converts images to grayscale with auto-gamma correction |
+| **random_mp3_player** | Plays random MP3s at configurable intervals |
+
+### Conversion Tools
+| Command       | Description |
+|--------------|-------------|
+| **conv** | Converts between audio/video formats (mp3, opus, etc.) |
+| **img2pdf** | Converts images to PDF while preserving full image content |
+| **pdf2jpg** | Converts PDF pages to individual JPG files |
+| **pdf2png** | Converts PDF files to high-quality PNG format |
 
 ## Requirements
 
-- Core dependencies: `ffmpeg`, `imagemagick`, `sshfs`, `espeak`
+- Core dependencies: `ffmpeg`, `imagemagick`, `sshfs`, `espeak`, `mpg123`, `poppler-utils`
 - Designed for Linux systems with systemd
 
 ## Installation
@@ -34,6 +49,9 @@ A collection of utility scripts for Ubuntu system administration and media proce
 git clone https://github.com/yourusername/bash-toolkit.git
 cd bash-toolkit
 chmod +x ./*
+
+# Optional: Add to PATH
+sudo ln -s $(pwd)/* /usr/local/bin/
 ```
 
 <img src="https://omicronyx.com/images/jorgeLogo.png" width="20"/> Jorge Fernandes
