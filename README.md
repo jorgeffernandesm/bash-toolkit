@@ -1,4 +1,10 @@
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate/?hosted_button_id=Q6ZB8NDZXTDTS)
+<a href="https://www.paypal.com/donate/?hosted_button_id=Q6ZB8NDZXTDTS" target="_blank">
+  <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" height="20" alt="Donate with PayPal">
+</a>
+
 # Bash Toolkit
+
 
 A collection of utility scripts for Ubuntu system administration and media processing.
 
@@ -28,3 +34,11 @@ A collection of utility scripts for Ubuntu system administration and media proce
 git clone https://github.com/yourusername/bash-toolkit.git
 cd bash-toolkit
 chmod +x ./*
+```
+
+<img src="https://omicronyx.com/images/jorgeLogo.png" width="20"/> Jorge Fernandes
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate/?hosted_button_id=Q6ZB8NDZXTDTS)
+<a href="https://www.paypal.com/donate/?hosted_button_id=Q6ZB8NDZXTDTS" target="_blank">
+  <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" height="20" alt="Donate with PayPal">
+</a>
