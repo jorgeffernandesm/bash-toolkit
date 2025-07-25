@@ -28,7 +28,7 @@ A collection of utility scripts for Ubuntu system administration and media proce
 | **delEXIF** | Strips EXIF metadata from image files |
 | **fixBright** | Batch adjusts brightness/contrast of JPG images |
 | **greyscale** | Converts images to grayscale with auto-gamma correction |
-| **random_mp3_player** | Plays random MP3s at configurable intervals |
+| **catSounds** | Plays random MP3s at configurable intervals (ideal for cats) |
 
 ### Conversion Tools
 | Command       | Description |
