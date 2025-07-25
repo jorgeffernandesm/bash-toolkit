@@ -1,0 +1,128 @@
+#!/bin/bash
+
+# This script converts audio and video files from one format to another using ffmpeg.
+# Supported formats: mp3 and opus.
+# Author: Jorge Fernandes
+#
+# Usage: ./conv -e <extension> -t <target> [options]
+#
+# Arguments:
+#   -e, --extension   Source files extension (e.g., mp3)
+#   -t, --target      Target files extension (e.g., opus)
+#   -b, --bitrate     Bitrate (e.g., 16k)
+#   -d, --delete      Delete source files after conversion
+#   -s, --skip        Skip conversion if output file exists
+#   -h, --help        Display help message
+
+COMMAND=$(basename "$0")
+HOME=$(pwd)
+DELETE=FALSE
+SKIP=FALSE
+
+usage() {
+  cat <<EOF
+$COMMAND
+===============================================================================
+Convert audio and video files to other formats using ffmpeg
+Supported formats: mp3 and opus
+
+Usage: $COMMAND -e <extension> -t <target> [options]
+
+Arguments:
+  -e, --extension   Source files extension (e.g., mp3)
+  -t, --target      Target files extension (e.g., opus)
+  -b, --bitrate     Bitrate (e.g., 16k)
+  -d, --delete      Delete source files after conversion
+  -s, --skip        Skip conversion if output file exists
+  -h, --help        Display this help message
+
+Examples:
+  Convert mp3 to opus with 16k bitrate:
+    $COMMAND -e mp3 -t opus -b 16k
+
+  Convert wav to mp3 and delete originals:
+    $COMMAND -e wav -t mp3 -d
+EOF
+}
+
+# Parse options
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -e|--extension)
+      shift
+      EXTENSION="$1"
+      shift
+      ;;
+    -t|--target)
+      shift
+      TARGET="$1"
+      shift
+      ;;
+    -b|--bitrate)
+      shift
+      BITRATE="$1"
+      shift
+      ;;
+    -d|--delete)
+      DELETE=TRUE
+      shift
+      ;;
+    -s|--skip)
+      SKIP=TRUE
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -*|--*)
+      echo "Unknown option: $1"
+      usage
+      exit 1
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+# Validate required arguments
+if [[ -z "$EXTENSION" || -z "$TARGET" ]]; then
+  echo "Error: Both extension and target must be specified"
+  usage
+  exit 1
+fi
+
+# Check if ffmpeg is installed
+if ! command -v ffmpeg &> /dev/null; then
+  echo "Error: ffmpeg is required but not installed"
+  exit 1
+fi
+
+# Conversion function
+convert_file() {
+  local input_file="$1"
+  local output_file="${input_file%.*}.$TARGET"
+  
+  if [[ "$SKIP" = "TRUE" && -f "$output_file" ]]; then
+    echo "Skipping: $input_file (output already exists)"
+    return
+  fi
+
+  echo "Converting: $input_file → $output_file"
+  ffmpeg -i "$input_file" ${BITRATE:+-ab "$BITRATE"} -loglevel error -y "$output_file"
+
+  if [[ "$DELETE" = "TRUE" && -f "$output_file" ]]; then
+    rm "$input_file"
+    echo "Deleted original: $input_file"
+  fi
+}
+
+# Process files
+for file in "$HOME"/*."$EXTENSION"; do
+  if [[ -f "$file" ]]; then
+    convert_file "$file"
+  fi
+done
+
+echo "Conversion complete"

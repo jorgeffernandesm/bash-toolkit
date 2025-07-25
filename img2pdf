@@ -1,0 +1,91 @@
+#!/bin/bash
+# img2pdf - Conversor que preserva la imagen completa
+# Versión 4.0 - Sin recortes, ajuste perfecto
+# Author: Jorge Fernandes
+
+DEFAULT_QUALITY=95
+DEFAULT_PAPER="A4"
+
+# Tamaños de papel en píxeles (72dpi)
+declare -A PAPER_SIZES=(
+    ["A4"]="595x842"
+    ["LETTER"]="612x792"
+    ["LEGAL"]="612x1008"
+    ["A5"]="420x595"
+)
+
+mostrar_ayuda() {
+    cat <<EOF
+img2pdf - Convierte imágenes a PDF preservando el 100% de la imagen
+
+Uso: img2pdf [calidad] [tamaño_papel]
+
+Argumentos:
+  calidad       Calidad JPEG (1-100, predeterminado: $DEFAULT_QUALITY)
+  tamaño_papel  Tamaño de página (A4, Letter, Legal, A5. Predet: $DEFAULT_PAPER)
+
+Ejemplos:
+  img2pdf                  # Conversión básica (A4)
+  img2pdf 100 Letter       # Alta calidad, tamaño carta
+  img2pdf 80 A5            # Calidad 80, tamaño A5
+EOF
+    exit 0
+}
+
+[ "$1" = "-h" ] || [ "$1" = "--help" ] && mostrar_ayuda
+
+QUALITY=${1:-$DEFAULT_QUALITY}
+PAPER_SIZE=${2:-$DEFAULT_PAPER}
+PAPER_SIZE=${PAPER_SIZE^^}
+
+# Verificar tamaño de papel
+if [[ -z "${PAPER_SIZES[$PAPER_SIZE]}" ]]; then
+    echo "Error: Tamaño de papel '$PAPER_SIZE' no válido. Opciones:"
+    echo "       ${!PAPER_SIZES[@]}"
+    exit 1
+fi
+
+convertir_a_pdf() {
+    local img_file="$1"
+    local pdf_file="${img_file%.*}.pdf"
+    local papel_dim="${PAPER_SIZES[$PAPER_SIZE]}"
+    local papel_w=${papel_dim%x*}
+    local papel_h=${papel_dim#*x}
+    
+    echo "Convirtiendo: $img_file (imagen completa a $PAPER_SIZE PDF)"
+    
+    # Obtener dimensiones de la imagen
+    img_dim=$(identify -format "%wx%h" "$img_file")
+    img_w=${img_dim%x*}
+    img_h=${img_dim#*x}
+    
+    # Calcular relación de aspecto
+    if (( img_w * papel_h > img_h * papel_w )); then
+        # La imagen es más ancha que el papel
+        resize_dim="${papel_w}x"
+    else
+        # La imagen es más alta que el papel
+        resize_dim="x${papel_h}"
+    fi
+    
+    convert "$img_file" \
+            -quality $QUALITY \
+            -background white \
+            -gravity center \
+            -density 72 \
+            -resize "$resize_dim" \
+            -page "${papel_dim}" \
+            -format pdf \
+            -compress jpeg \
+            "$pdf_file"
+}
+
+# Procesar imágenes (insensible a mayúsculas)
+shopt -s nocaseglob
+for img in *.{jpg,jpeg,png,webp,bmp,tiff}; do
+    [ -f "$img" ] || continue
+    convertir_a_pdf "$img"
+done
+
+echo "Conversión completada. Todos los PDFs contienen las imágenes completas."
+

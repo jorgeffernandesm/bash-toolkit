@@ -1,0 +1,25 @@
+#!/bin/bash
+# Convert images to greyscale
+# Usage: greyscale [extension]
+# Author: Jorge Fernandes
+
+if [ -z "$1" ]; then
+   echo "Error: Please provide the image extension"
+   echo "Example: greyscale png"
+   exit 1
+fi
+
+# Create output directory if it doesn't exist
+mkdir -p greyscale
+
+# Convert each image to greyscale
+for f in ./*"$1"; do
+   if [ -f "$f" ]; then  # Check if file exists
+      echo "Processing: $f"
+      # Remove leading ./ and keep original extension
+      output_file="./greyscale/${f#./}"
+      convert "$f" -colorspace Gray -auto-gamma -auto-level "$output_file"
+   fi
+done
+
+echo "Conversion complete. Greyscale images saved in ./greyscale/"

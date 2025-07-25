@@ -1,0 +1,61 @@
+#!/bin/bash
+# Random MP3 player with configurable intervals
+# Author: Jorge Fernandes
+
+SOUND_DIR="$HOME/Music/catSounds"
+MIN_INTERVAL=900  # 5 minutes (in seconds)
+MAX_INTERVAL=1200  # 15 minutes (in seconds)
+
+show_help() {
+  cat <<EOF
+Usage: ${0##*/} [options]
+
+Options:
+  -d DIR      Set sound directory (default: ~/cat_sounds)
+  -min SEC    Set minimum interval in seconds (default: 300)
+  -max SEC    Set maximum interval in seconds (default: 900)
+  -h, --help  Show this help message
+
+Example:
+  ${0##*/} -d ~/my_sounds -min 120 -max 600
+EOF
+  exit 0
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -d) SOUND_DIR="$2"; shift ;;
+    -min) MIN_INTERVAL="$2"; shift ;;
+    -max) MAX_INTERVAL="$2"; shift ;;
+    -h|--help) show_help ;;
+    *) echo "Unknown option: $1"; exit 1 ;;
+  esac
+  shift
+done
+
+# Verify requirements
+if ! command -v mpg123 &> /dev/null; then
+  echo "Error: mpg123 not found. Install with: sudo apt install mpg123"
+  exit 1
+fi
+
+if [ ! -d "$SOUND_DIR" ]; then
+  echo "Error: Sound directory not found: $SOUND_DIR"
+  exit 1
+fi
+
+if [ $(find "$SOUND_DIR" -name "*.mp3" | wc -l) -eq 0 ]; then
+  echo "Error: No MP3 files found in $SOUND_DIR"
+  exit 1
+fi
+
+# Main player loop
+echo "Playing random MP3s from $SOUND_DIR every $MIN_INTERVAL-$MAX_INTERVAL seconds"
+while true; do
+  RANDOM_FILE=$(find "$SOUND_DIR" -name "*.mp3" | shuf -n 1)
+  SONG_NAME=$(basename "$RANDOM_FILE" .mp3)
+  echo "Now Playing: $SONG_NAME"
+  mpg123 -q "$RANDOM_FILE"
+  sleep $(( MIN_INTERVAL + RANDOM % (MAX_INTERVAL - MIN_INTERVAL) ))
+done

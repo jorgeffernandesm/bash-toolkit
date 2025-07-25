@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# Description: Creates a symbolic link to a file located in the current directory.
+#              The link is created in /home/jorge/Desktop/Radar with the same name as the source file.
+# Usage: ./radar <filename>
+# Author: Jorge Fernandes
+# License: MIT
+#
+
+# Show help if requested or no argument is passed
+if [[ "$1" == "-h" || "$1" == "--help" || -z "$1" ]]; then
+  echo "Usage: $0 <filename>"
+  echo
+  echo "Creates a symbolic link to <filename> in /home/jorge/Desktop/Radar."
+  echo "The source file must be in the current working directory."
+  echo
+  echo "Example:"
+  echo "  ./radar example.txt"
+  echo "  → Creates: /home/jorge/Desktop/Radar/example.txt → $(pwd)/example.txt"
+  exit 0
+fi
+
+FILENAME="$1"
+SOURCE="$(pwd)/$FILENAME"
+TARGET_DIR="/home/jorge/Desktop/Radar"
+DEST="$TARGET_DIR/$FILENAME"
+
+# Ensure the Radar folder exists
+mkdir -p "$TARGET_DIR"
+
+# Check if the file exists in the current directory
+if [ ! -e "$SOURCE" ]; then
+  echo "Error: File '$FILENAME' does not exist in the current directory."
+  exit 1
+fi
+
+# Create symbolic link
+ln -s "$SOURCE" "$DEST"
+
+echo "Symbolic link created:"
+echo "$DEST → $SOURCE"

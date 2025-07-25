@@ -1,0 +1,86 @@
+#!/bin/bash
+# pdf2png - Batch PDF to PNG Converter
+# Version 1.0 - Converts all PDFs to high-quality PNGs
+# Author: Jorge Fernandes
+
+DEFAULT_DPI=150
+DEFAULT_QUALITY=95
+
+show_help() {
+  cat <<EOF
+pdf2png - Convert PDF files to PNG format (batch processing)
+
+Usage: pdf2png [options] [dpi] [quality]
+
+Options:
+  -h, --help      Show this help message
+  -v, --version   Show version information
+  -l, --list      List PDF files that will be converted
+
+Arguments:
+  dpi            Resolution in dots per inch (default: $DEFAULT_DPI)
+  quality        PNG compression quality (1-100, default: $DEFAULT_QUALITY)
+
+Examples:
+  pdf2png                     # Convert all PDFs with default settings
+  pdf2png 300 100             # High-res 300DPI, maximum quality
+  pdf2png -l                  # List PDFs without converting
+EOF
+  exit 0
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)    show_help ;;
+    -v|--version) echo "pdf2png v1.0"; exit 0 ;;
+    -l|--list)    LIST_ONLY=true; shift ;;
+    -*)           echo "Error: Unknown option $1"; exit 1 ;;
+    *)            break ;;
+  esac
+done
+
+DPI=${1:-$DEFAULT_DPI}
+QUALITY=${2:-$DEFAULT_QUALITY}
+
+# Validate inputs
+if ! [[ "$DPI" =~ ^[0-9]+$ ]]; then
+  echo "Error: DPI must be a number"
+  exit 1
+fi
+
+if ! [[ "$QUALITY" =~ ^[0-9]+$ ]] || [ "$QUALITY" -lt 1 ] || [ "$QUALITY" -gt 100 ]; then
+  echo "Error: Quality must be between 1-100"
+  exit 1
+fi
+
+# Check for ImageMagick
+if ! command -v convert &> /dev/null; then
+  echo "Error: ImageMagick is required. Install with:"
+  echo "sudo apt install imagemagick ghostscript"
+  exit 1
+fi
+
+# Process PDF files
+process_pdf() {
+  local pdf_file="$1"
+  local png_file="${pdf_file%.*}.png"
+  
+  echo "Converting: $pdf_file → $png_file"
+  convert -density "$DPI" "$pdf_file" -quality "$QUALITY" -colorspace RGB "$png_file"
+}
+
+if [ "$LIST_ONLY" = true ]; then
+  echo "PDF files found (would be converted to PNG):"
+  for pdf in *.pdf; do
+    [ -f "$pdf" ] && echo "  ${pdf%.*}.png"
+  done
+  exit 0
+fi
+
+for pdf in *.pdf; do
+  [ -f "$pdf" ] || continue
+  process_pdf "$pdf"
+done
+
+echo "Conversion complete. PNG files created with same base names."

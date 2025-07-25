@@ -1,0 +1,19 @@
+# Example: bw png
+# Arguments:
+#   <extension> - The file extension of the images to be converted (e.g., png, >
+# If no extension is provided, the script will prompt the user to provide one.
+# The script creates a 'bw' directory if it doesn't exist and saves the convert>
+# Author: Jorge Fernandes
+
+if [ -z "$1" ];
+   then
+   echo "BW need extension"
+   echo "e.g: png" 
+else
+   mkdir bw
+   for f in ./*$1; do
+      echo $f
+      #convert "$f" -monochrome "./bw/${f%.$1} BW.$1";
+      convert "$f" -monochrome "./bw/$f";
+   done
+fi

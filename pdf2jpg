@@ -1,0 +1,114 @@
+#!/bin/bash
+# pdf2jpg - PDF to JPG Converter (One JPG per page in same directory)
+# Version 3.1 - Creates individual JPGs in source directory
+# Author: Jorge Fernandes
+
+DEFAULT_DPI=150
+DEFAULT_QUALITY=90
+
+show_help() {
+  cat <<EOF
+pdf2jpg - Convert each PDF page to separate JPG files in same directory
+
+Usage: pdf2jpg [options] [dpi] [quality]
+
+Options:
+  -h, --help      Show this help message
+  -v, --version   Show version information
+  -l, --list      List PDF files that will be converted
+  -p, --prefix    Filename prefix (default: none)
+
+Arguments:
+  dpi            Resolution in dots per inch (default: ${DEFAULT_DPI})
+  quality        JPG quality (1-100, default: ${DEFAULT_QUALITY})
+
+Examples:
+  pdf2jpg                     # Convert all PDFs with default settings
+  pdf2jpg 300 95              # High-res 300DPI, quality 95
+  pdf2jpg -p "doc_"           # Add "doc_" prefix to output files
+  pdf2jpg -l                  # List PDFs without converting
+EOF
+  exit 0
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)    show_help ;;
+    -v|--version) echo "pdf2jpg v3.1"; exit 0 ;;
+    -l|--list)    LIST_ONLY=true; shift ;;
+    -p|--prefix)  PREFIX="$2"; shift 2 ;;
+    -*)           echo "Error: Unknown option $1"; exit 1 ;;
+    *)            break ;;
+  esac
+done
+
+DPI=${1:-$DEFAULT_DPI}
+QUALITY=${2:-$DEFAULT_QUALITY}
+
+# Validate inputs
+if ! [[ "$DPI" =~ ^[0-9]+$ ]]; then
+  echo "Error: DPI must be a positive number"
+  exit 1
+fi
+
+if ! [[ "$QUALITY" =~ ^[0-9]+$ ]] || [ "$QUALITY" -lt 1 ] || [ "$QUALITY" -gt 100 ]; then
+  echo "Error: Quality must be between 1-100"
+  exit 1
+fi
+
+# Check requirements
+if ! command -v convert &> /dev/null; then
+  echo "Error: ImageMagick is required. Install with:"
+  echo "sudo apt install imagemagick ghostscript"
+  exit 1
+fi
+if ! command -v pdfinfo &> /dev/null; then
+  echo "Error: poppler-utils is required. Install with:"
+  echo "sudo apt install poppler-utils"
+  exit 1
+fi
+
+# Conversion function
+convert_pdf() {
+  local pdf_file="$1"
+  local base_name="${pdf_file%.*}"
+  local counter=1
+
+  echo "Processing: $pdf_file"
+  
+  # Get page count
+  local page_count=$(pdfinfo "$pdf_file" | grep Pages | awk '{print $2}')
+  
+  # Convert each page
+  for ((page=1; page<=page_count; page++)); do
+    local output_file="${PREFIX}${base_name}_$(printf "%02d" $counter).jpg"
+    echo "  Page ${page} → ${output_file}"
+    
+    convert -density "$DPI" \
+            -background white \
+            -flatten \
+            -quality "$QUALITY" \
+            "${pdf_file}[$((page-1))]" \
+            "$output_file"
+    
+    ((counter++))
+  done
+}
+
+if [ "$LIST_ONLY" = true ]; then
+  echo "PDF files found (will create these JPGs in current directory):"
+  for pdf in *.pdf; do
+    [ -f "$pdf" ] && pdfinfo "$pdf" | grep Pages | awk -v name="${pdf%.*}" -v p="${PREFIX}" \
+      '{print "  " p name "_01.jpg to " p name "_" sprintf("%02d", $2) ".jpg"}'
+  done
+  exit 0
+fi
+
+# Process all PDFs
+for pdf in *.pdf; do
+  [ -f "$pdf" ] || continue
+  convert_pdf "$pdf"
+done
+
+echo "Conversion complete. JPG files created in current directory."
